@@ -48,6 +48,23 @@ jobs:
           echo "Publicando $REF_PUBLICADA (commit $COMMIT) — evento: $EVENTO"
           cat build-info.json
 
+      - name: Validar o site antes de publicar
+        run: |
+          python3 - <<'EOF'
+          import json, os, sys
+
+          config = json.load(open('config/app-config.json'))
+          pasta = config.get('pastaCapas')
+          if not pasta:
+              sys.exit('config/app-config.json nao tem a chave "pastaCapas" que o codigo usa (js/app.js)')
+          catalogo = json.load(open(config['catalogoUrl']))
+          faltando = [j['capa'] for j in catalogo['jogos']
+                      if not os.path.exists(os.path.join(pasta, j['capa']))]
+          if faltando:
+              sys.exit(f'capas ausentes em {pasta}: {", ".join(faltando)}')
+          print(f'Validacao ok: {len(catalogo["jogos"])} jogos, todas as capas presentes em {pasta}')
+          EOF
+
       - name: Configurar Pages
         uses: actions/configure-pages@v5
 
