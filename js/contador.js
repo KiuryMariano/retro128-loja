@@ -35,6 +35,9 @@ function iniciarContador(campanha) {
       jogos: JOGOS.map((jogo) => ({ ...jogo })),
       vitrine: vitrine.cloneNode(true)
     });
+    if (historicoContador.length > 60) {
+      historicoContador.shift();
+    }
     Observabilidade.contar('contador_ticks');
     alvo.innerHTML = formatarTempo(restante);
   }
